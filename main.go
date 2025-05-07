@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"net/smtp"
 	"os"
 )
 
@@ -11,7 +13,9 @@ func main() {
 	baseURL := getEnvVar("NDBRE_BASE_URL")
 	apiToken := getEnvVar("NDBRE_API_TOKEN")
 	tableId := getEnvVar("NDBRE_TABLE")
-	receiver := getEnvVar("NDBRE_RECEIVER")
+	from := getEnvVar("NDBRE_EMAIL_FROM")
+	smtp := getEnvVar("NDBRE_SMTP_SERVER")
+	to := getEnvVar("NDBRE_EMAIL_TO")
 
 	results, err := getRecords(baseURL, apiToken, tableId)
 	if err != nil {
@@ -23,7 +27,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	sendEmail(receiver)
+	sendEmail(smtp, from, to)
 }
 
 func getEnvVar(name string) string {
@@ -56,8 +60,6 @@ type PageInfo struct {
 func getRecords(baseURL string, apiToken string, tableId string) (*NocoDBResult, error) {
 	url := baseURL + "/api/v2/tables/" + tableId + "/records?fields=Title%2CStatus%2CSubject%2CReminder&where=%28Status%2Cneq%2CClosed%29~and%28Reminder%2Ceq%2Ctoday%29&limit=1000&shuffle=0&offset=0"
 
-	log.Println(url)
-
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -82,6 +84,18 @@ func getRecords(baseURL string, apiToken string, tableId string) (*NocoDBResult,
 	return &body, nil
 }
 
-func sendEmail(receiver string) {
+func sendEmail(smtpAddress string, sender string, receiver string) error {
+	receivers := []string{receiver}
+	msg := fmt.Sprintf("To: %s\r\n"+
+		"Subject: NocoDB Reminder\r\n"+
+		"\r\n"+
+		"This is something written in the body...\r\n", receiver)
 
+	err := smtp.SendMail(smtpAddress, nil, sender, receivers, []byte(msg))
+	if err != nil {
+		log.Printf("Could not send email because of the following error: %v", err)
+		return err
+	}
+
+	return nil
 }
