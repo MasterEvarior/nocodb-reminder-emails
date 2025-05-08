@@ -32,6 +32,11 @@
         '';
 
         # Environment Variables
+        NDBRE_BASE_URL = "https://nocodb.mydomain.com";
+        NDBRE_API_TOKEN = "xyz";
+        NDBRE_EMAIL_FROM = "reminders@mydomain.com";
+        NDBRE_SMTP_SERVER = "localhost:2525";
+        NDBRE_EMAIL_TO = "reminders@mydomain.com";
       };
     };
 }
