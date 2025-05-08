@@ -6,14 +6,14 @@ import (
 )
 
 func main() {
-	baseURL := getEnvVar("NDBRE_BASE_URL")
-	apiToken := getEnvVar("NDBRE_API_TOKEN")
-	from := getEnvVar("NDBRE_EMAIL_FROM")
-	smtp := getEnvVar("NDBRE_SMTP_SERVER")
-	to := getEnvVar("NDBRE_EMAIL_TO")
+	BASE_URL := getEnvVar("NDBRE_BASE_URL")
+	API_TOKEN := getEnvVar("NDBRE_API_TOKEN")
+	FROM := getEnvVar("NDBRE_EMAIL_FROM")
+	SMTP := getEnvVar("NDBRE_SMTP_SERVER")
+	TO := getEnvVar("NDBRE_EMAIL_TO")
 
 	log.Printf("Collecting data from NocoDB")
-	results, err := getRecords(baseURL, apiToken)
+	results, err := getRecords(BASE_URL, API_TOKEN)
 	if err != nil {
 		log.Fatalf("Could not get all results from NocoDB because of an error: %v", err)
 	}
@@ -24,7 +24,7 @@ func main() {
 	}
 
 	log.Printf("Found %d applicable rows", len(results.Rows))
-	err = SendEmail(smtp, from, to, results.Rows)
+	err = SendEmail(SMTP, FROM, TO, results.Rows)
 	if err != nil {
 		log.Fatalf("Could not send an email because of an error: %v", err)
 	}
