@@ -8,12 +8,10 @@ import (
 
 func SendEmail(smtpAddress string, sender string, receiver string, data []Row) error {
 	receivers := []string{receiver}
-	msg := fmt.Sprintf("To: %s\r\n"+
-		"Subject: NocoDB Reminder\r\n"+
-		"\r\n", receiver)
+	msg := fmt.Sprintf(line("To: %s")+line("Subject: NocoDB Reminder")+line(""), receiver)
 
 	for _, row := range data {
-		msg += fmt.Sprintf("- %s (%s)(%s) \r\n", row.Title, row.Subject, row.Status)
+		msg += fmt.Sprintf(line("- %s (%s)(%s)"), row.Title, row.Subject, row.Status)
 	}
 
 	err := smtp.SendMail(smtpAddress, nil, sender, receivers, []byte(msg))
@@ -24,4 +22,8 @@ func SendEmail(smtpAddress string, sender string, receiver string, data []Row) e
 	log.Printf("Sent a reminder email from %s to %s", sender, receiver)
 
 	return nil
+}
+
+func line(content string) string {
+	return content + "\r\n"
 }
